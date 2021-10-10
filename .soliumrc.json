@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "pragma-on-top": 1,
+    "mixedcase": "error",
+    "camelcase": 1,
+    "blank-lines": 1,
+    "imports-on-top": 1,
+    "function-whitespace": 1,
+    "operator-whitespace": 1,
+    "conditionals-whitespace": 1,
+    "visibility-first": 1,
+    "no-unused-vars": 1,
+    "indentation": [
+      "error",
+      4
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ]
+  }
+}

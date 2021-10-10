@@ -1,0 +1,26 @@
+{
+  "name": "laqiratoken",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "solium": "^1.2.5"
+  }
+}
