@@ -18,12 +18,30 @@ contract BasicToken is Context, BEP20Basic {
     mapping(address => uint256) private _balances;
 
     uint256 internal _totalSupply;
+    uint256 internal _decimals;
 
     /**
      * @dev See {BEP20Basic-totalSupply}.
      */
     function totalSupply() public view override returns (uint256) {
         return _totalSupply;
+    }
+    
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the value {ERC20} uses, unless this function is
+     * overridden;
+     *
+     * NOTE: This information is only used for _display_ purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view virtual override returns (uint8) {
+        return _decimals;
     }
 
     /**
