@@ -4,9 +4,15 @@ pragma solidity ^0.8.0;
 
 import "./BasicToken.sol";
 import "./IBEP20.sol";
+import "./SafeMath.sol";
 
 
 contract StandardToken is BasicToken, IBEP20 {
+    /**
+     * Libraries can be seen as implicit base contracts of the contracts that use them.
+     * They will not be explicitly visible in the inheritance hierarchy.
+     */
+    using SafeMath for uint256;
     mapping(address => mapping(address => uint256)) private _allowances;
 
     /**
