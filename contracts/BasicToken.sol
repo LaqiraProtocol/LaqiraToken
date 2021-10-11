@@ -15,7 +15,7 @@ import "./BEP20Basic.sol";
 contract BasicToken is Context, BEP20Basic {
     using SafeMath for uint256;
 
-    mapping(address => uint256) private _balances;
+    mapping(address => uint256) internal _balances;
 
     uint256 internal _totalSupply;
     uint256 internal _decimals;
