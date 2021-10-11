@@ -40,7 +40,7 @@ contract BasicToken is Context, BEP20Basic {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
-    function decimals() public view virtual override returns (uint8) {
+    function decimals() public view override returns (uint8) {
         return _decimals;
     }
 
