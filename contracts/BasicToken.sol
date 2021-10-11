@@ -17,7 +17,7 @@ contract BasicToken is Context, BEP20Basic {
 
     mapping(address => uint256) private _balances;
 
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply;
 
     /**
      * @dev See {BEP20Basic-totalSupply}.
