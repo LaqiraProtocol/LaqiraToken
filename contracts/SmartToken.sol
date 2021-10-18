@@ -22,7 +22,7 @@ contract SmartToken is StandardToken, IBEP677 {
         address to,
         uint256 amount
     ) internal virtual override {
-        validRecipient(to);
+        require(validRecipient(to));
     }
 
     /**
@@ -70,12 +70,12 @@ contract SmartToken is StandardToken, IBEP677 {
         return size > 0;
     }
 
+    function validRecipient(address _recipient) internal view returns (bool) {
+        return _recipient != address(this);
+    }
+
     function contractFallback(address _to, uint _value, bytes memory _data) private {
         IBEP677Receiver receiver = IBEP677Receiver(_to);
         receiver.onTokenTransfer(_msgSender(), _value, _data);
-    }
-
-    function validRecipient(address _recipient) internal {
-        require(_recipient != address(this));
     }
 }
