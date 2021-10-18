@@ -113,6 +113,9 @@ contract StandardToken is BasicToken, IBEP20 {
 
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "BEP20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
         emit Transfer(address(0), account, amount);
@@ -132,6 +135,9 @@ contract StandardToken is BasicToken, IBEP20 {
 
     function _burn(address account, uint256 amount) internal virtual {
         require(account != address(0), "BEP20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+        
         uint256 accountBalance = _balances[account];
         require(accountBalance >= amount, "BEP20: burn amount exceeds balance");
         _balances[account] = accountBalance.sub(amount);
