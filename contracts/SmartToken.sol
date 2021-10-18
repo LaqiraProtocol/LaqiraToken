@@ -14,15 +14,15 @@ import "./IBEP677Receiver.sol";
 
 contract SmartToken is StandardToken, IBEP677 {
     /**
-    * This function overrides _transfer in BasicToken contract witch can be 
-    * mentioned as BasicToken._transfer() instead of using super keyword. 
+     * @dev Current token cannot be transferred to the token contract based on follwing override modification.
      */
-    function _transfer(
-        address sender,
-        address recipient,
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
         uint256 amount
-    ) internal virtual override validRecipient(recipient) {
-        super._transfer(sender, recipient, amount);
+    ) internal virtual override {
+        validRecipient(to);
     }
 
     /**
@@ -75,8 +75,7 @@ contract SmartToken is StandardToken, IBEP677 {
         receiver.onTokenTransfer(_msgSender(), _value, _data);
     }
 
-    modifier validRecipient(address _recipient) {
+    function validRecipient(address _recipient) internal {
         require(_recipient != address(this));
-        _;
     }
 }
