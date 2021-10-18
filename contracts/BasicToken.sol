@@ -88,12 +88,16 @@ contract BasicToken is Context, BEP20Basic {
         require(sender != address(0), "BEP20: transfer from the zero address");
         require(recipient != address(0), "BEP20: transfer to the zero address");
 
+        _beforeTokenTransfer(sender, recipient, amount);
+
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "BEP20: transfer amount exceeds balance");
         _balances[sender] = senderBalance.sub(amount);
         _balances[recipient] = _balances[recipient].add(amount);
 
         emit Transfer(sender, recipient, amount);
+        
+        _afterTokenTransfer(sender, recipient, amount);
     }
 
     /**
