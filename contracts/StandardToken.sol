@@ -15,6 +15,24 @@ contract StandardToken is BasicToken, IBEP20 {
     using SafeMath for uint256;
     mapping(address => mapping(address => uint256)) private _allowances;
 
+    string internal _name;
+    string internal _symbol;
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
     /**
      * @dev See {IBEP20-allowance}.
      */
