@@ -22,6 +22,7 @@ contract SmartToken is StandardToken, IBEP677 {
         address to,
         uint256 amount
     ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
         require(validRecipient(to));
     }
 
