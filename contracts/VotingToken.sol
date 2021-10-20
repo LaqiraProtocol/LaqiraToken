@@ -194,6 +194,32 @@ contract VotingToken is SmartToken {
     }
 
     /**
+     * @dev Maximum token supply is limited to 2 ** 96 - 1 in order to avoid overflow in voting mechanism.
+     */
+    function _maxSupply() internal pure returns (uint96) {
+        return type(uint96).max;
+    }
+
+    /**
+     * @dev Snapshots the totalSupply after it has been increased.
+     */
+    function _mint(address account, uint256 amount) internal virtual override {
+        super._mint(account, amount);
+        require(totalSupply() <= _maxSupply(), "BEP20Votes: total supply risks overflowing votes");
+
+        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+    }
+
+    /**
+     * @dev Snapshots the totalSupply after it has been decreased.
+     */
+    function _burn(address account, uint256 amount) internal virtual override {
+        super._burn(account, amount);
+
+        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+    }
+
+    /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
      * Emits events {DelegateeChanged} and {DelegateVotesChanged}.
