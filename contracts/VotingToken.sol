@@ -220,6 +220,22 @@ contract VotingToken is SmartToken {
     }
 
     /**
+    * @dev Move voting power when tokens are transferred.
+    *
+    * Emits a {DelegateVotesChanged} event.
+     */
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        super._afterTokenTransfer(from, to, amount);
+        if (delegates(_msgSender()) != address(0)) {
+            _moveVotingPower(delegates(_msgSender()), address(0), amount);
+        }
+    }
+
+    /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
      * Emits events {DelegateeChanged} and {DelegateVotesChanged}.
