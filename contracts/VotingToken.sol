@@ -48,4 +48,34 @@ contract VotingToken is SmartToken {
      * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
      */
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
+
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
+    function checkpoints(address account, uint32 pos) public view returns (Checkpoint memory) {
+        return _checkpoints[account][pos];
+    }
+
+    /**
+     * @dev Get number of checkpoints for `account`.
+     */
+    function numCheckpoints(address account) public view returns (uint256) {
+        return _checkpoints[account].length;
+    }
+
+    /**
+     * @dev Get the address `account` is currently delegating to.
+     */
+    function delegates(address account) public view returns (address) {
+        return _delegates[account];
+    }
+
+    /**
+     * @dev Gets the current votes balance for `account`
+     */
+    function getVotes(address account) public view returns (uint96) {
+        uint256 pos = _checkpoints[account].length;
+        return pos == 0 ? 0 : _checkpoints[account][pos.sub(1)].votes;
+    }
 }
