@@ -141,6 +141,59 @@ contract VotingToken is SmartToken {
     }
 
     /**
+     * @dev Delegates votes from signer to `delegatee`
+     * @notice Delegates votes from signer to `delegatee`
+     * @param delegatee The address to delegate votes to
+     * @param nonce The contract state required to match the signature
+     * @param expiry The time at which to expire the signature
+     * @param v The recovery byte of the signature
+     * @param r Half of the ECDSA signature pair
+     * @param s Half of the ECDSA signature pair
+     */
+    function delegateBySig(
+        address delegatee,
+        uint nonce,
+        uint expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
+        public
+    {
+        require(block.timestamp <= expiry, "BEP20Votes: signature expired");
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                DOMAIN_TYPEHASH,
+                keccak256(bytes(name())),
+                getChainId(),
+                address(this)
+            )
+        );
+
+        bytes32 structHash = keccak256(
+            abi.encode(
+                DELEGATION_TYPEHASH,
+                delegatee,
+                nonce,
+                expiry
+            )
+        );
+
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                domainSeparator,
+                structHash
+            )
+        );
+
+        address signer = ecrecover(digest, v, r, s);
+        require(signer != address(0), "LQR::delegateBySig: invalid signature");
+        require(nonce == nonces[signer]++, "LQR::delegateBySig: invalid nonce");
+        return _delegate(signer, delegatee);
+    }
+
+    /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
      * Emits events {DelegateeChanged} and {DelegateVotesChanged}.
@@ -153,6 +206,15 @@ contract VotingToken is SmartToken {
         emit DelegateeChanged(delegator, currentDelegate, delegatee);
 
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
+    }
+
+    /**
+    * @dev The function returns the chain id in which token contract 
+     */ 
+    function getChainId() internal view returns (uint) {
+        uint256 chainId;
+        assembly { chainId := chainid() }
+        return chainId;
     }
 
     function safeCastTo96(uint n, string memory errorMessage) internal pure returns (uint96) {
