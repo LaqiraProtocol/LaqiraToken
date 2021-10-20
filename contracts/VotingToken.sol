@@ -203,7 +203,7 @@ contract VotingToken is SmartToken {
     /**
      * @dev Snapshots the totalSupply after it has been increased.
      */
-    function _mint(address account, uint256 amount) internal virtual override {
+    function _mint(address account, uint256 amount) internal override {
         super._mint(account, amount);
         require(totalSupply() <= _maxSupply(), "BEP20Votes: total supply risks overflowing votes");
 
@@ -213,7 +213,7 @@ contract VotingToken is SmartToken {
     /**
      * @dev Snapshots the totalSupply after it has been decreased.
      */
-    function _burn(address account, uint256 amount) internal virtual override {
+    function _burn(address account, uint256 amount) internal override {
         super._burn(account, amount);
 
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
