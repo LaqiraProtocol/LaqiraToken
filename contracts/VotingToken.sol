@@ -132,4 +132,83 @@ contract VotingToken is SmartToken {
 
         return high == 0 ? 0 : ckpts[high.sub(1)].votes;
     }
+
+    /**
+     * @dev Delegate votes from the sender to `delegatee`.
+     */
+    function delegate(address delegatee) public virtual {
+        _delegate(_msgSender(), delegatee);
+    }
+
+    /**
+     * @dev Change delegation for `delegator` to `delegatee`.
+     *
+     * Emits events {DelegateeChanged} and {DelegateVotesChanged}.
+     */
+    function _delegate(address delegator, address delegatee) internal virtual {
+        address currentDelegate = delegates(delegator);
+        uint256 delegatorBalance = balanceOf(delegator);
+        _delegates[delegator] = delegatee;
+
+        emit DelegateeChanged(delegator, currentDelegate, delegatee);
+
+        _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
+    }
+
+    function safeCastTo96(uint n, string memory errorMessage) internal pure returns (uint96) {
+        require(n < 2**96, errorMessage);
+        return uint96(n);
+    }
+
+    function safeCastTo32(uint n, string memory errorMessage) internal pure returns (uint32) {
+        require(n < 2**32, errorMessage);
+        return uint32(n);
+    }
+
+    function castTo256(uint96 n) internal pure returns (uint256) {
+        return uint256(n);
+    }
+
+    function _moveVotingPower(
+        address src,
+        address dst,
+        uint256 amount
+    ) private {
+        if (src != dst && amount > 0) {
+            if (src != address(0)) {
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                emit DelegateVotesChanged(src, oldWeight, newWeight);
+            }
+
+            if (dst != address(0)) {
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
+                emit DelegateVotesChanged(dst, oldWeight, newWeight);
+            }
+        }
+    }
+
+    function _writeCheckpoint(
+        Checkpoint[] storage ckpts,
+        function(uint256, uint256) view returns (uint256) op,
+        uint256 delta
+    ) private returns (uint256 oldWeight, uint256 newWeight) {
+        uint256 pos = ckpts.length;
+        oldWeight = pos == 0 ? 0 : castTo256(ckpts[pos.sub(1)].votes);
+        newWeight = op(oldWeight, delta);
+
+        uint32 blockNumber = safeCastTo32(block.number, "LQR::_writeCheckpoint: block number exceeds 32 bits");
+        if (pos > 0 && ckpts[pos.sub(1)].fromBlock == blockNumber) {
+            ckpts[pos.sub(1)].votes = safeCastTo96(newWeight, "LQR::_writeCheckpoint: number exceeds 96 bits");
+        } else {
+            ckpts.push(Checkpoint({fromBlock: blockNumber, votes: safeCastTo96(newWeight, "LQR::_writeCheckpoint: number exceeds 96 bits")}));
+        }
+    }
+
+    function _add(uint256 a, uint256 b) private pure returns (uint256) {
+        return a + b;
+    }
+
+    function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
+        return a - b;
+    }
 }
