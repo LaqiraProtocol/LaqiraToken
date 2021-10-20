@@ -80,6 +80,19 @@ contract VotingToken is SmartToken {
     }
 
     /**
+     * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
+     * It is but NOT the sum of all the delegated votes!
+     *
+     * Requirements:
+     *
+     * - `blockNumber` must have been already mined
+     */
+    function getPastTotalSupply(uint256 blockNumber) public view returns (uint96) {
+        require(blockNumber < block.number, "BEP20Votes: block not yet mined");
+        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
+    }
+
+    /**
      * @dev Retrieve the number of votes for `account` at the end of `blockNumber`.
      *
      * Requirements:
