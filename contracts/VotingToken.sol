@@ -37,4 +37,15 @@ contract VotingToken is SmartToken {
     mapping(address => address) private _delegates;
     mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
+
+    /**
+     * @dev Emitted when an account changes their delegate.
+     */
+    event DelegateeChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+
+
+    /**
+     * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
+     */
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 }
