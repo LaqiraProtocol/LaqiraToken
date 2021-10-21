@@ -56,7 +56,9 @@ contract LaqiraToken is VotingToken, Ownable, Pausable {
         _name = "Laqira Token";
         _symbol = "LQR";
         _decimals = 18;
+        _transferOwnership(_msgSender());
         _mint(_msgSender(), totalSupply_);
+       
     }
 
     function mint(address account, uint256 amount) public onlyOwner returns (bool) {
