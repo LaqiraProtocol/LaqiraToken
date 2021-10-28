@@ -36,7 +36,7 @@ abstract contract Pausable is Context {
     /**
      * @dev Returns true if the contract is paused, and false otherwise.
      */
-    function paused() public view virtual returns (bool) {
+    function paused() public view returns (bool) {
         return _paused;
     }
 
@@ -71,7 +71,7 @@ abstract contract Pausable is Context {
      *
      * - The contract must not be paused.
      */
-    function _pause() internal virtual whenNotPaused {
+    function _pause() internal whenNotPaused {
         _paused = true;
         emit Paused(_msgSender());
     }
@@ -83,7 +83,7 @@ abstract contract Pausable is Context {
      *
      * - The contract must be paused.
      */
-    function _unpause() internal virtual whenPaused {
+    function _unpause() internal whenPaused {
         _paused = false;
         emit Unpaused(_msgSender());
     }
