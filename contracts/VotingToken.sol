@@ -136,7 +136,7 @@ contract VotingToken is SmartToken {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual {
+    function delegate(address delegatee) public {
         _delegate(_msgSender(), delegatee);
     }
 
