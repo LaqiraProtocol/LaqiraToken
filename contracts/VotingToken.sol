@@ -231,7 +231,10 @@ contract VotingToken is SmartToken {
     ) internal override {
         super._afterTokenTransfer(from, to, amount);
         if (delegates(_msgSender()) != address(0)) {
-            _moveVotingPower(delegates(_msgSender()), address(0), amount);
+            if (balanceOf(from) < getVotes(delegates(from)) ) {
+                uint256 diff = castTo256(getVotes(delegates(from))).sub(balanceOf(from));
+                _moveVotingPower(delegates(from), address(0), diff);
+            }
         }
     }
 
