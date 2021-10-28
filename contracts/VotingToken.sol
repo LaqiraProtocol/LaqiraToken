@@ -144,6 +144,13 @@ contract VotingToken is SmartToken {
     function delegate(address delegatee) public {
         _delegate(_msgSender(), delegatee);
     }
+    
+    /**
+     * @dev Remove previous delegatee
+     */
+    function resetDelegate() public {
+        _delegate(_msgSender(), address(0));
+    }
 
     /**
      * @dev Delegates votes from signer to `delegatee`
@@ -237,7 +244,7 @@ contract VotingToken is SmartToken {
         super._afterTokenTransfer(from, to, amount);
         if (delegates(from) != address(0)) {
             uint256 currentBalance = balanceOf(from);
-            uint96 delegateeVotePower = getVotes(delegates(from));            
+            uint96 delegateeVotePower = _delegates[from].votes;            
             if (currentBalance < delegateeVotePower) {
                 uint256 diff = castTo256(delegateeVotePower).sub(currentBalance);
                 _moveVotingPower(delegates(from), address(0), diff, currentBalance);
@@ -255,11 +262,12 @@ contract VotingToken is SmartToken {
         address currentDelegate = delegates(delegator);
         uint256 currentVotePower = castTo256(_delegates[delegator].votes);
         uint256 delegatorBalance = balanceOf(delegator);
-        _delegates[delegator]._delegatee = delegatee;
-        _delegates[delegator].votes = safeCastTo96(delegatorBalance, "LQR::_writeCheckpoint: number exceeds 96 bits");
+        if (currentDelegate != delegatee) {
+            _delegates[delegator]._delegatee = delegatee;
+            _delegates[delegator].votes = delegatee == address(0) ? 0 : safeCastTo96(delegatorBalance, "LQR::_writeCheckpoint: number exceeds 96 bits");
+            emit DelegateeChanged(delegator, currentDelegate, delegatee);
+        }
         
-        emit DelegateeChanged(delegator, currentDelegate, delegatee);
-
         _moveVotingPower(currentDelegate, delegatee, currentVotePower, delegatorBalance);
     }
 
