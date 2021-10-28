@@ -24,6 +24,11 @@ contract VotingToken is SmartToken {
         uint32 fromBlock;
         uint96 votes;
     }
+    
+    struct Delegatee {
+        address _delegatee;
+        uint96 votes;
+    }
 
     /// @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
@@ -34,7 +39,7 @@ contract VotingToken is SmartToken {
     /// @notice A record of states for signing / validating signatures
     mapping (address => uint) public nonces;
 
-    mapping(address => address) private _delegates;
+    mapping(address => Delegatee) private _delegates;
     mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
@@ -68,7 +73,7 @@ contract VotingToken is SmartToken {
      * @dev Get the address `account` is currently delegating to.
      */
     function delegates(address account) public view returns (address) {
-        return _delegates[account];
+        return _delegates[account]._delegatee;
     }
 
     /**
@@ -233,9 +238,10 @@ contract VotingToken is SmartToken {
         if (delegates(from) != address(0)) {
             uint256 currentBalance = balanceOf(from);
             uint96 delegateeVotePower = getVotes(delegates(from));            
-            if (currentBalance < delegateeVotePower ) {
-                uint256 diff = castTo256().sub(currentBalance);
-                _moveVotingPower(delegates(from), address(0), diff);
+            if (currentBalance < delegateeVotePower) {
+                uint256 diff = castTo256(delegateeVotePower).sub(currentBalance);
+                _moveVotingPower(delegates(from), address(0), diff, currentBalance);
+                _delegates[from].votes = safeCastTo96(currentBalance, "LQR::_writeCheckpoint: number exceeds 96 bits");
             }
         }
     }
@@ -245,14 +251,16 @@ contract VotingToken is SmartToken {
      *
      * Emits events {DelegateeChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(address delegator, address delegatee) internal virtual {
+    function _delegate(address delegator, address delegatee) internal {
         address currentDelegate = delegates(delegator);
+        uint256 currentVotePower = castTo256(_delegates[delegator].votes);
         uint256 delegatorBalance = balanceOf(delegator);
-        _delegates[delegator] = delegatee;
-
+        _delegates[delegator]._delegatee = delegatee;
+        _delegates[delegator].votes = safeCastTo96(delegatorBalance, "LQR::_writeCheckpoint: number exceeds 96 bits");
+        
         emit DelegateeChanged(delegator, currentDelegate, delegatee);
 
-        _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
+        _moveVotingPower(currentDelegate, delegatee, currentVotePower, delegatorBalance);
     }
 
     /**
@@ -281,11 +289,12 @@ contract VotingToken is SmartToken {
     function _moveVotingPower(
         address src,
         address dst,
+        uint256 transferredVote,
         uint256 amount
     ) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, transferredVote);
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
