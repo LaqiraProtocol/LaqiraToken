@@ -23,7 +23,7 @@ contract SmartToken is StandardToken, IBEP677 {
         uint256 amount
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        require(validRecipient(to));
+        require(validRecipient(to), "LQR: recipient cannot be Laqira token address");
     }
 
     /**
