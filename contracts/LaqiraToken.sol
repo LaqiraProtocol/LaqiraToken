@@ -43,7 +43,7 @@ contract LaqiraToken is VotingToken, Ownable, Pausable {
     ) internal override {
         super._beforeTokenTransfer(from, to, amount);
         require(!paused(), "BEP20Pausable: token transfer while paused");
-        require(_balances[from].sub(frosted[from]) >= amount);
+        require(_balances[from].sub(frosted[from]) >= amount, "LQR: not avaiable balance");
     }
 
     /**
