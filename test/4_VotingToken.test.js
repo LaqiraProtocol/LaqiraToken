@@ -9,7 +9,7 @@ const VotingTokenMock = artifacts.require('VotingTokenMock');
 const EIP712 = require('./helper/EIP712');
 
 contract('BEP20Votes', function (accounts) {
-    const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2, delegator ] = accounts;
+    const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2, other3, delegator ] = accounts;
     const name = 'Laqira Token';
     const symbol = 'LQR';
     const supply = new BN('10000000000000000000000000');
@@ -85,6 +85,57 @@ contract('BEP20Votes', function (accounts) {
             expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
 
             expect(await this.token.delegates(holder)).to.be.equal(holder);
+        });
+
+        it('voting power calculation', async function () {
+            await this.token.mint(holder, supply);
+
+            await this.token.transfer(recipient, 1000, {from: holder});
+
+            expect(await this.token.delegates(recipient)).to.equal(ZERO_ADDRESS);
+
+            await this.token.delegate(recipient, {from: recipient});
+            expect(await this.token.numCheckpoints(recipient)).to.be.bignumber.equal('1');
+            expect(await this.token.getVotes(recipient)).to.be.bignumber.equal('1000');
+            
+            await this.token.delegate(other1, {from: recipient});
+            expect(await this.token.numCheckpoints(recipient)).to.be.bignumber.equal('2');
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
+
+
+            expect(await this.token.getVotes(recipient)).to.be.bignumber.equal('0');
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('1000');
+            expect(await this.token.delegates(recipient)).to.be.bignumber.equal(other1);
+
+            await this.token.transfer(other2, 2000, {from: holder});
+            await this.token.delegate(other1, {from: other2});
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('3000');
+
+            await this.token.transfer(recipient, 1000, {from: holder});
+            expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal('2000');
+
+            await this.token.delegate(other1, {from: recipient});
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('3000');
+
+            await this.token.resetDelegate({from: recipient});
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
+            expect(await this.token.delegates(recipient)).to.be.bignumber.equal(ZERO_ADDRESS);
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('2000');
+
+            await this.token.delegate(other1, {from: recipient});
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('4000');
+
+            await this.token.transfer(other3, 100, {from: recipient});
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('3900');
+            expect(await this.token.getVotes(other3)).to.be.bignumber.equal('0');
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('5');
+
+            await this.token.resetDelegate({from: other2});
+            expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('6');
+            expect(await this.token.getVotes(other1)).to.be.bignumber.equal('1900');
         });
     });
 
