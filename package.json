@@ -22,5 +22,13 @@
   "homepage": "",
   "dependencies": {
     "solium": "^1.2.5"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.15",
+    "chai": "^4.3.4",
+    "ethereumjs-abi": "^0.6.8",
+    "ethereumjs-util": "^6.2.0",
+    "ethereumjs-wallet": "^1.0.2",
+    "web3": "^1.6.0"
   }
 }
