@@ -146,7 +146,10 @@ contract VotingToken is SmartToken {
     }
     
     /**
-     * @dev Remove previous delegatee
+     * @dev Remove previous delegatee and set it to zero address. After receiving more tokens, token owner needs to
+     * delegates once more to update voting powers. If source and destination delegatee be the same (means token owner
+     * wants to delegate the same address and update vote powers of the same address), voting powers will not be updated.
+     * In such case, token owner should call resetDelegate function and then delegate to the address again.
      */
     function resetDelegate() public {
         _delegate(_msgSender(), address(0));
