@@ -65,8 +65,8 @@ contract LaqiraToken is VotingToken, Ownable, Pausable {
         return true;
     }
 
-    function burn(address account, uint256 amount) public onlyOwner returns (bool) {
-        _burn(account, amount);
+    function burn(uint256 amount) public returns (bool) {
+        _burn(_msgSender(), amount);
         return true;
     }
     
