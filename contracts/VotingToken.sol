@@ -209,10 +209,10 @@ contract VotingToken is SmartToken {
     }
 
     /**
-     * @dev Maximum token supply is limited to 2 ** 96 - 1 in order to avoid overflow in voting mechanism.
+     * @dev Maximum token supply is limited to 10 ** 10 in order to avoid inflation and overflow in voting mechanism.
      */
     function _maxSupply() internal pure returns (uint96) {
-        return type(uint96).max;
+        return 10 ** 10;
     }
 
     /**
