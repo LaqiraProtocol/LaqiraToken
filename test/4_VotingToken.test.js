@@ -40,9 +40,9 @@ contract('BEP20Votes', function (accounts) {
     });
 
     it('minting restriction', async function () {
-        const amount = new BN('2').pow(new BN('96'));
+        let amount = new BN('10').pow(new BN('28'));
         await expectRevert(
-            this.token.mint(holder, amount),
+            this.token.mint(holder, amount.addn(1)),
             'BEP20Votes: total supply risks overflowing votes',
         );
     });

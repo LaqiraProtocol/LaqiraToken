@@ -302,7 +302,7 @@ contract('LaqiraToken', (accounts) => {
             });
 
             it('minting restriction', async function () {
-                const amount = new BN('2').pow(new BN('96'));
+                const amount = new BN('10').pow(new BN('28'));
                 await expectRevert(token.mint(anotherAccount, amount),
                 'BEP20Votes: total supply risks overflowing votes',);
             });
@@ -311,20 +311,15 @@ contract('LaqiraToken', (accounts) => {
 
     describe('burn', function () {
         const amount = new BN('10');
-        it('rejects a null account', async function () {
-            await expectRevert(token.burn(ZERO_ADDRESS, new BN(1)),
-            'BEP20: burn from the zero address');
-        });
-
         describe('for a non zero account', function () {
             it('rejects burning more than balance', async function () {
                 await expectRevert(token.burn(
-                owner, totalSupply.addn(1)), 'BEP20: burn amount exceeds balance',
+                totalSupply.addn(1)), 'BEP20: burn amount exceeds balance',
                 );
             });
 
             beforeEach('burning', async function () {
-                const { logs } = await token.burn(owner, amount, {from: owner});
+                const { logs } = await token.burn(amount, {from: owner});
                 this.logs = logs;
             });
 
@@ -345,11 +340,6 @@ contract('LaqiraToken', (accounts) => {
                 });
     
                 expect(event.args.value).to.be.bignumber.equal(amount);
-            });
-
-            it('prevents non-owners from burning', async function () {
-                await expectRevert(token.burn(owner, amount, { from: sender }),
-                'Ownable: caller is not the owner',);
             });
         });
     });
