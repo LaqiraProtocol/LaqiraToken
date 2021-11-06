@@ -230,6 +230,15 @@ contract VotingToken is SmartToken {
      */
     function _burn(address account, uint256 amount) internal override {
         super._burn(account, amount);
+        if (delegates(account) != address(0)) {
+            uint256 currentBalance = balanceOf(account);
+            uint96 delegateeVotePower = _delegates[account].votes;
+            if (currentBalance < delegateeVotePower) {
+                uint256 diff = castTo256(delegateeVotePower).sub(currentBalance);
+                _moveVotingPower(delegates(account), address(0), diff, currentBalance);
+                _delegates[account].votes = safeCastTo96(currentBalance, "LQR::_writeCheckpoint: number exceeds 96 bits");
+            }
+        }
 
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
     }
@@ -247,7 +256,7 @@ contract VotingToken is SmartToken {
         super._afterTokenTransfer(from, to, amount);
         if (delegates(from) != address(0)) {
             uint256 currentBalance = balanceOf(from);
-            uint96 delegateeVotePower = _delegates[from].votes;            
+            uint96 delegateeVotePower = _delegates[from].votes;
             if (currentBalance < delegateeVotePower) {
                 uint256 diff = castTo256(delegateeVotePower).sub(currentBalance);
                 _moveVotingPower(delegates(from), address(0), diff, currentBalance);
